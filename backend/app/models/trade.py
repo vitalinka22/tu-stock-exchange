@@ -1,4 +1,4 @@
-# Represents all transactions (history)
+# Represents all transactions history
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from datetime import datetime
