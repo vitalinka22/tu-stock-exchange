@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from trading import router as trading_router
+from app.routers.trading import router as trading_router
 
 app = FastAPI(title="TU Stock Exchange API")
 
