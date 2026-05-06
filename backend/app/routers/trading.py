@@ -1,16 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel 
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal
 from app.models.trade import Trade
 from app.models.users import User
+from app.db.dependencies import get_db
+from app.models.holding import Holding
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 router = APIRouter()
 
@@ -40,6 +36,9 @@ def buy_stock(trade: TradeRequest, db : Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code = 404, detail = 'User not found')
     
+    if user.is_bankrupt:
+        raise HTTPException(status_code = 403, detail = "Account is bankrupt")
+    
     price = get_current_price(trade.ticker)
     total_cost = price*trade.quantity
 
@@ -61,6 +60,24 @@ def buy_stock(trade: TradeRequest, db : Session = Depends(get_db)):
     total_value=total_cost,
     )
     db.add(new_trade)
+
+    holding = db.query(Holding).filter(
+        Holding.user_id == user.id, 
+        Holding.ticker == trade.ticker).first()
+    
+    if holding:
+        holding.quantity += trade.quantity
+    else:
+        new_holding = Holding(
+            user_id = user.id, 
+            ticker = trade.ticker,
+            quantity = trade.quantity, 
+            average_buy_price = price
+        )
+        db.add(new_holding)
+
+
+
     db.commit()
 
     return {
@@ -78,6 +95,20 @@ def sell_stock(trade: TradeRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == trade.user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.is_bankrupt:
+        raise HTTPException(status_code=403, detail="Account is bankrupt")
+    
+    holding = db.query(Holding).filter(
+        Holding.user_id == user.id, 
+        Holding.ticker == trade.ticker
+    ).first()
+
+    if not holding or holding.quantity < trade.quantity:
+        raise HTTPException(
+            status_code = 400, 
+            detail = f"Not enough stocks. You have {holding.quantity if holding else 0}"
+        )
 
     price = get_current_price(trade.ticker)
     total_value = price * trade.quantity
@@ -93,6 +124,12 @@ def sell_stock(trade: TradeRequest, db: Session = Depends(get_db)):
     db.add(new_trade)
 
     user.balance += total_value
+
+
+    holding.quantity -= trade.quantity
+    if holding.quantity == 0:
+        db.delete(holding)
+
     db.commit()
 
     return {
