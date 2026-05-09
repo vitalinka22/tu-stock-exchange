@@ -50,7 +50,7 @@ def get_ticker(ticker: str) -> float:
     try:
         price = get_current_price(ticker)
     except Exception as e:
-        raise HTTPException(status_code=404, detconfig --globalail=f"Ticker: {ticker} not found")
+        raise HTTPException(status_code=404, detail=f"Ticker: {ticker} not found")
 
     r.setex(ticker, 3600, json.dumps(price))
     return price
