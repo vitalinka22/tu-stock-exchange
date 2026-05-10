@@ -1,12 +1,36 @@
 <template>
-  <div class="text-center">
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-    <p v-if="text" class="mt-2">{{ text }}</p>
+  
+  <div v-if = "type === 'spinner' ">
+    <v-progress-circular
+      :size = "spinnerSize"
+      :color = "color"
+    >
+    </v-progress-circular>
   </div>
+
+  <div v-else>
+    <v-skeleton-loader
+      :type = "type"
+    >
+    </v-skeleton-loader>
+  </div>
+  
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  text?: string
-}>()
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{
+  size: 'small' | 'medium' | 'large'
+  type: 'spinner' | 'skeleton' 
+  color?: 'primary' | 'success' | 'error' | 'warning' 
+}>(), {
+  size: 'medium',
+  type: 'spinner',
+  color: 'primary',
+})
+
+const sizeMap = { small:24, medium:48, large: 64}
+const spinnerSize = computed (() => sizeMap[props.size])
+
 </script>

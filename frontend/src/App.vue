@@ -46,6 +46,14 @@ import TheWelcome from './components/TheWelcome.vue'
     </div>
   </div>
 
+  <v-container>
+    <v-btn color="primary">
+      Vuetify funktioniert!
+    </v-btn>
+  </v-container>
+    <!-- delete until here -->
+
+
   <main>
     <TheWelcome />
   </main>

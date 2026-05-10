@@ -1,22 +1,34 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full">
-      <slot />
-      <button @click="close" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded">Close</button>
-    </div>
-  </div>
+  
+<v-dialog :model-value="modelValue" :persistent="!closeOnOverlay">
+  <v-card>
+    <v-card-title>{{ title }}</v-card-title>
+    <v-card-text>{{ confirmationText }}</v-card-text>
+    <v-card-actions>
+      <v-btn @click="emit('cancel'); emit('update:modelValue', false)">Cancel</v-btn>
+      <v-btn color="success" @click="emit('confirm'); emit('update:modelValue', false)">Confirm</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+  
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  isOpen: boolean
-}>()
+
+const props = withDefaults(defineProps<{
+  title: string
+  modelValue: boolean
+  confirmationText: string
+  closeOnOverlay: boolean
+}>(), {
+  closeOnOverlay: true,
+})
 
 const emit = defineEmits<{
-  close: []
+  confirm: []
+  cancel: []
+  'update:modelValue' : [value: boolean]
 }>()
 
-const close = () => {
-  emit('close')
-}
+
 </script>
