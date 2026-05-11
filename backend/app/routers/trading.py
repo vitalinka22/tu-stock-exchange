@@ -182,4 +182,17 @@ def get_portfolio(user_id : int, db : Session = Depends(get_db)):
         "cash_balance": round(user.balance, 2), 
     }
 
+@router.get("/trades/history")
+def get_history(user_id : int, page: int = 1, limit : int = 10, db : Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user : 
+        raise HTTPException(status_code = 404, detail = "User not found")
+    
+    offset = (page-1)*limit
+    trades = db.query(Trade).filter(Trade.user_id == user_id).offset(offset).limit(limit).all()
+    return {"trades" : trades, 
+            "page" : page, 
+            "limit":limit}
+
 
