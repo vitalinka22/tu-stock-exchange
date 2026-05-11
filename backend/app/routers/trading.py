@@ -141,5 +141,45 @@ def sell_stock(trade: TradeRequest, db: Session = Depends(get_db)):
         "new_balance": user.balance,
     }
 
+@router.get("/portfolio")
+def get_portfolio(user_id : int, db : Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user :
+        raise HTTPException(status_code = 404, detail = "User not found")
+    
+    holdings = db.query(Holding).filter(Holding.user_id == user_id).all()
+
+    holdings_data = []
+    total_current_value = 0.0
+    total_cost_basis = 0.0
+
+    for holding in holdings:
+        current_price = get_current_price(holding.ticker)
+        current_value = holding.quantity * current_price
+        cost_basis = holding.quantity * holding.average_buy_price
+        pnl = current_value - cost_basis
+        pnl_percent = (pnl/cost_basis)*100 if cost_basis > 0 else 0.0
+
+        total_current_value += current_value
+        total_cost_basis += cost_basis
+
+        holdings_data.append({
+            "ticker":holding.ticker, 
+            "quantity":holding.quantity,
+            "average_buy_price":holding.average_buy_price, 
+            "current_price": current_price, 
+            "current_value": round(current_value, 2), 
+            "cost_basis": round(cost_basis, 2), 
+            "pnl": round(pnl, 2), 
+            "pnl_percent": round(pnl_percent, 2), 
+        })
+    return{
+        "holdings":holdings_data, 
+        "total_current_value":round(total_current_value, 2), 
+        "total_cost_basis": round(total_cost_basis, 2), 
+        "total_pnl":round(total_current_value - total_cost_basis, 2), 
+        "cash_balance": round(user.balance, 2), 
+    }
 
 
