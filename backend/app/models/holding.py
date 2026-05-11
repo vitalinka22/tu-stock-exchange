@@ -13,3 +13,7 @@ class Holding(Base):
     quantity = Column(Integer, nullable=False)
     average_buy_price = Column(Float, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow)
+    symbol = Column(String, primary_key=True)
+
+
+    user = relationship("User", back_populates="holdings")
