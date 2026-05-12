@@ -21,7 +21,7 @@ async def get_leaderboard(
 
         holdings = db.query(
             models.Holding.user_id,
-            models.Holding.symbol,
+            models.Holding.ticker,
             models.Holding.quantity
         ).all()
 
@@ -31,17 +31,17 @@ async def get_leaderboard(
                 user_holdings[holding.user_id] = []
             user_holdings[holding.user_id].append(holding)
 
-        symbols = set(holding.symbol for holding in holdings)
-        symbol_prices = {}
+        tickers = set(holding.ticker for holding in holdings)
+        ticker_prices = {}
         
-        for symbol in symbols:
-            price = await get_current_price(symbol, redis)
+        for ticker in tickers:
+            price = await get_current_price(ticker, redis)
             if price is None:
                 raise HTTPException(
                     status_code=503,
-                    detail=f"Could not fetch price for {symbol}. Service temporarily unavailable."
+                    detail=f"Could not fetch price for {ticker}. Service temporarily unavailable."
                 )
-            symbol_prices[symbol] = price
+            ticker_prices[ticker] = price
 
         # Calculate portfolio values
         user_values = []
@@ -51,7 +51,7 @@ async def get_leaderboard(
             # Add value of all holdings
             if user.id in user_holdings:
                 for holding in user_holdings[user.id]:
-                    total_value += holding.quantity * symbol_prices[holding.symbol]
+                    total_value += holding.quantity * ticker_prices[holding.ticker]
             
             user_values.append({
                 "user_id": user.id,
