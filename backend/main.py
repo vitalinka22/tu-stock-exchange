@@ -1,0 +1,27 @@
+from fastapi import FastAPI
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.tasks.snapshot import create_daily_snapshot
+from app.config import settings
+from app.utils.logger import logger
+
+app = FastAPI()
+
+scheduler = BackgroundScheduler()
+
+scheduler.add_job(
+    create_daily_snapshot,
+    'cron',
+    hour=0,  # Midnight UTC
+    minute=0,
+    id='daily_snapshot_job',
+    replace_existing=True
+)
+
+scheduler.start()
+logger.info("Scheduled daily net worth snapshot job (runs at 00:00 UTC)")
+
+@app.on_event("shutdown")
+def shutdown_event():
+    scheduler.shutdown()
+    logger.info("Scheduler stopped")
+
