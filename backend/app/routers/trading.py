@@ -7,8 +7,7 @@ from fastapi import FastAPI, APIRouter, HTTPException
 
 app = FastAPI()
 r = redis.Redis(host='localhost', port=6379, db=0)
-
-router = APIRouter(prefix="/stocks", tags=["stocks"])
+router = APIRouter(prefix="/stocks")
 """
 Returns the stock price. 
 
@@ -31,6 +30,36 @@ def get_current_price(ticker: str) -> float:
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Unknown problem")
     return round(price, 2)
+
+@router.get("/search")
+def search_ticker(q: str):
+    try:
+        results = yf.Search(q)
+        return results.quotes
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/popular")
+def search_ticker():
+    try:
+        results = yf.screen("most_actives")
+        quotes = results["quotes"]
+        i = 0
+        response = []
+        for q in quotes:
+            if i == 20:
+                break
+            short_name = q["shortName"]
+            ticker = q["symbol"]
+            response.append({
+                "name": short_name,
+                "ticker": ticker
+            })
+            i += 1
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 """
 Returns the stock price, caches it to redis. 
@@ -73,3 +102,4 @@ def get_ticker_history(ticker: str, period: int):
     except AttributeError:
         raise HTTPException(status_code=404, detail=f"Ticker: {ticker} not found")
     return ticker_history.reset_index().to_dict(orient="records")
+app.include_router(router)
