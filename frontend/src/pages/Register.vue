@@ -44,6 +44,18 @@
           /> 
 
           <v-text-field
+            v-model="username"
+            :rules="usernameRules"
+            label="Username"
+            type="text"
+            class="mb-3"
+            variant="outlined"
+            rounded="lg"
+            density="comfortable"
+            prepend-inner-icon="mdi-account-outline"
+          /> 
+
+          <v-text-field
             v-model="password"
             :rules="passwordRules"
             label="Password"
@@ -55,17 +67,6 @@
             prepend-inner-icon="mdi-lock-outline"
           /> 
 
-          <v-text-field
-            v-model="username"
-            :rules="usernameRules"
-            label="Username"
-            type="text"
-            class="mb-3"
-            variant="outlined"
-            rounded="lg"
-            density="comfortable"
-            prepend-inner-icon="mdi-account-outline"
-          /> 
 
           <v-text-field
             v-model="confirmPassword"
