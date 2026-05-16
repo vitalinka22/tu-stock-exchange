@@ -196,3 +196,23 @@ def get_history(user_id : int, page: int = 1, limit : int = 10, db : Session = D
             "limit":limit}
 
 
+@router.get('/portfolio/networth')
+def get_networth(user_id:int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code = 404, detail = "User not found")
+    
+    holdings = db.query(Holding).filter(Holding.user_id == user_id).all()
+
+    total_stock_value = 0.0
+    for holding in holdings:
+        current_price = get_current_price(holding.ticker)
+        total_stock_value += holding.quantity * current_price
+
+    networth = user.balance + total_stock_value
+
+    return {
+        "networth" : round(networth, 2), 
+        "cash_balance" : round(user.balance, 2), 
+        "total_stock_value":round(total_stock_value, 2)
+    }
