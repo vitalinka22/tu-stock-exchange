@@ -1,9 +1,15 @@
+
+
 <template>
-  <div class="p-8">
-    <h1 class="text-2xl font-bold">Leaderboard Page</h1>
-    <p>Rankings coming soon...</p>
-  </div>
+  
 </template>
 
 <script setup lang="ts">
+
+  // import vue-chartjs for top 5 players leaderboard
+  import { Bar } from 'vue-chartjs'
+  import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+
 </script>
