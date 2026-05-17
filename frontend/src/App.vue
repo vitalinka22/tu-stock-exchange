@@ -9,6 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
     <RouterLink to="/portfolio" class="text-gray-400 hover:text-white transition">Portfolio</RouterLink>
     <RouterLink to="/leaderboard" class="text-gray-400 hover:text-white transition">Leaderboard</RouterLink>
     <RouterLink to="/dashboard" class="text-gray-400 hover:text-white transition">Dashboard</RouterLink>
+    <RouterLink to="/default" class="text-gray-400 hover:text-white transition">Default</RouterLink>
     <div class="ml-auto flex gap-4">
       <RouterLink to="/login" class="text-gray-400 hover:text-white transition">Login</RouterLink>
       <RouterLink to="/register" class="text-gray-400 hover:text-white transition">Register</RouterLink>
