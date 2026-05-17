@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.tasks.snapshot import create_daily_snapshot
-from app.config import settings
+from app.core.config import settings
 from app.utils.logger import logger
 
 app = FastAPI()
