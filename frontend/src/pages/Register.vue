@@ -22,12 +22,6 @@
         </v-card-subtitle>
       </div>
 
-
-          
-
-      
-
-
       <v-card-text>
         <v-form ref="form">
 
@@ -78,7 +72,6 @@
             density="comfortable"
             prepend-inner-icon="mdi-lock-outline"
           /> 
-  
 
           <v-alert v-if="errorMessage" type="error" 
             variant="tonal"
@@ -90,9 +83,7 @@
         </v-form>
       </v-card-text>
 
-
-
-      <v-card-actions  class="flex-column align-stretch">
+      <v-card-actions class="flex-column align-stretch">
 
         <v-btn
           block
@@ -107,8 +98,6 @@
           Sign up
         </v-btn>
 
-
-
       </v-card-actions>
 
     </v-card>
@@ -120,26 +109,26 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import api from '@/api/axiosInstance' // IGOR: imported axios to call real API
 
   const email = ref('')
   const password = ref('')
   const loading = ref(false)
   const errorMessage = ref('')
   const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null)
-  const username =ref('')
+  const username = ref('')
   const confirmPassword = ref('')
 
-  const router = useRouter() 
+  const router = useRouter()
 
   const emailRules = [
     (v: string) => !!v || 'Email address required',
     (v: string) => /.+@.+\..+/.test(v) || 'Email must be valid'
   ]
 
-  // regex expressions needed
   const passwordRules = [
     (v: string) => !!v || 'Password required',
-    (v: string) => v.length >= 8 || 'Minimum 8 characters' ,
+    (v: string) => v.length >= 8 || 'Minimum 8 characters',
     (v: string) => /[a-z]/.test(v) || 'At least 1 lowercase letter',
     (v: string) => /[A-Z]/.test(v) || 'At least 1 uppercase letter',
     (v: string) => /[\d\W]/.test(v) || 'At least 1 number or special character'
@@ -147,7 +136,7 @@
 
   const usernameRules = [
     (v: string) => !!v || 'Username required',
-    (v: string) => v.length >= 5 || 'Minimum 5 characters' ,
+    (v: string) => v.length >= 5 || 'Minimum 5 characters',
     (v: string) => v.length <= 20 || 'Maximum 20 characters',
     (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed',
     (v: string) => !v.includes(' ') || 'Spaces are not allowed'
@@ -161,28 +150,34 @@
   async function onSubmit() {
     if (!form.value) return
     const { valid } = await form.value.validate()
-    if (!valid ) return
-    loading.value= true
+    if (!valid) return
+
+    loading.value = true
+    errorMessage.value = ''
 
     try {
-   
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      // IGOR: replaced fake setTimeout with real API call
+      // calls POST /auth/register with email, username and password
+      await api.post('/auth/register', {
+        email: email.value,
+        username: username.value,
+        password: password.value
+      })
+
+      // IGOR: after successful registration redirect to login
+      // so user can sign in with their new account
       router.push('/login')
-    
-      } catch (error) {
-        errorMessage.value = 'Invalid email or password'
-      } finally {
-        loading.value = false 
-      }
 
+    } catch (error) {
+      // IGOR: shows error if registration fails (email taken, server down, etc.)
+      errorMessage.value = 'Registration failed. Please try again.'
+    } finally {
+      loading.value = false
     }
-
+  }
 </script>
 
 <style scoped>
-
-
   .register-card {
     border: 1px solid #ececec;
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
@@ -201,5 +196,4 @@
     text-decoration: none;
     font-weight: 500;
   }
-
 </style>
