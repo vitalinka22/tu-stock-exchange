@@ -10,12 +10,15 @@ import Portfolio from '../pages/Portfolio.vue'
 import Leaderboard from '../pages/Leaderboard.vue'
 import NotFound from '../pages/NotFound.vue'
 import Dashboard from '../pages/Dashboard.vue'
+import Default from '../pages/Default.vue'
+
 
 const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/market', component: Market },
   { path: '/leaderboard', component: Leaderboard },
+  { path: '/default', component: Default },
 
   // meta: { requiresAuth: true } = like @Secured annotation in Spring
   // marks these routes as protected — only logged in users can access them

@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid class="login-background align-center justify-center" style="min-height: 100vh" >
+  <v-container fluid class="login-background d-flex align-center justify-center" style="min-height: 100vh" >
 
     <v-card
       width="420"

@@ -1,10 +1,7 @@
 <!-- 404 page -->
 
 <template>
-  <v-container
-    fluid
-    class="error-background d-flex align-center justify-center"
-  >
+  <v-container fluid class="error-background d-flex align-center justify-center">
 
     <v-card
       width="500"
@@ -21,8 +18,7 @@
       </h1>
 
       <p class="text-medium-emphasis mb-6">
-        The page you are looking for doesn’t exist
-        or may have been moved.
+        The page you are looking for doesn’t exist or may have been moved.
       </p>
 
 

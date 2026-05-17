@@ -33,11 +33,19 @@
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.6,
+
         plugins: {
             legend: { display: false },
+            layout: { 
+                autoPadding: true 
+            },
             title: {
                 display: true,
-                text: 'Top 5 Players'
+                text: 'Top 5 Players',
+                fullSize: true
+
             }
         }
         
