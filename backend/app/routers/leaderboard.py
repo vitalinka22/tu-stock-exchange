@@ -59,9 +59,9 @@ async def get_leaderboard(
                 "portfolio_value": round(total_value, 2)
             })
 
-        # Sort by portfolio value (descending) and return top 10
+        # Sort by portfolio value (descending) and return top 5
         user_values.sort(key=lambda x: x["portfolio_value"], reverse=True)
-        return user_values[:10]
+        return user_values[:5]
 
     except Exception as e:
         raise HTTPException(
