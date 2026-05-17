@@ -59,8 +59,6 @@
 
             </div>
 
-  
-
           <v-alert v-if="errorMessage" type="error" 
             variant="tonal"
             rounded="lg"
@@ -69,15 +67,11 @@
             {{ errorMessage }}
           </v-alert>
 
-          
-
         </v-form>
       </v-card-text>
 
       <v-card-actions  class="flex-column align-stretch">
 
-        <!-- class="flex-column align-stretch": buttons are one under the other-->        
-        <!-- class="justify-space-between" offers space between buttons-->
         <v-btn
           block
           size="large"
@@ -90,7 +84,6 @@
         >
           Sign in
         </v-btn>
-
 
         <div class="d-flex align-center justify-center mt-4 ga-1">
           <span class="text-medium-emphasis">
@@ -116,20 +109,21 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useAuthStore } from '@/stores/auth' // IGOR: imported auth store to handle real login
 
   const username = ref('')
   const password = ref('')
   const loading = ref(false)
   const errorMessage = ref('')
-  const rememberMe =ref(false)
+  const rememberMe = ref(false)
   const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null)
 
-  const router = useRouter() 
+  const router = useRouter()
+  const authStore = useAuthStore() // IGOR: initialized auth store
 
-  
   const usernameRules = [
     (v: string) => !!v || 'Username required',
-    (v: string) => v.length >= 5 || 'Minimum 5 characters' ,
+    (v: string) => v.length >= 5 || 'Minimum 5 characters',
     (v: string) => v.length <= 20 || 'Maximum 20 characters',
     (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed',
     (v: string) => !v.includes(' ') || 'Spaces are not allowed'
@@ -137,7 +131,7 @@
 
   const passwordRules = [
     (v: string) => !!v || 'Password required',
-    (v: string) => v.length >= 8 || 'Minimum 8 characters' ,
+    (v: string) => v.length >= 8 || 'Minimum 8 characters',
     (v: string) => /[a-z]/.test(v) || 'At least 1 lowercase letter',
     (v: string) => /[A-Z]/.test(v) || 'At least 1 uppercase letter',
     (v: string) => /[\d\W]/.test(v) || 'At least 1 number or special character'
@@ -146,25 +140,26 @@
   async function onSubmit() {
     if (!form.value) return
     const { valid } = await form.value.validate()
-    if (!valid ) return
-    loading.value= true
+    if (!valid) return
+
+    loading.value = true
+    errorMessage.value = ''
 
     try {
-   
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      router.push('/')
-    
-      } catch (error) {
-        errorMessage.value = 'Invalid email or password'
-      } finally {
-        loading.value = false 
-      }
+      // IGOR: replaced fake setTimeout with real API call
+      // authStore.login() calls POST /auth/login and saves token to localStorage
+      await authStore.login(username.value, password.value)
 
+      // IGOR: redirect to dashboard after successful login (was redirecting to '/')
+      router.push('/dashboard')
+
+    } catch (error) {
+      // IGOR: shows error if API call fails (wrong credentials or backend down)
+      errorMessage.value = 'Invalid username or password'
+    } finally {
+      loading.value = false
     }
-
-
-
+  }
 </script>
 
 <style scoped>
@@ -173,7 +168,6 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   }
 
-  
   .login-background {
     min-height: 100vh;
     background:
@@ -187,5 +181,4 @@
     text-decoration: none;
     font-weight: 500;
   }
-
 </style>

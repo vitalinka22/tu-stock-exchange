@@ -52,3 +52,5 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         "access_token": token,
         "token_type": "bearer"
     }
+
+#Bug: SHOULD BE from backend.app.schemas.auth_schemas import ...

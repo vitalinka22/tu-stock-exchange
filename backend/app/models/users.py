@@ -12,3 +12,5 @@ class User(Base):
     balance = Column(Float, default=10000) # initial balance for new users
     is_bankrupt = Column(Boolean, default=False)
     registered_at = Column(DateTime, default=datetime.utcnow)
+    
+    holdings = relationship("Holding", back_populates="user")
