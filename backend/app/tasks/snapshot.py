@@ -1,9 +1,12 @@
+# Snapshot task to record daily net worth of users
+
 from datetime import datetime, timedelta
-from app import models, database
-from app.utils.stock_prices import get_current_price
+from app import models
+from app.db import database
+from app.routers.trading import get_current_price
 from sqlalchemy.orm import Session
 import redis
-from app.config import settings
+from app.core.config import settings
 from app.utils.logger import logger
 
 def create_daily_snapshot():

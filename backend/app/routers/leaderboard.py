@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from redis import Redis
 from app import schemas, models, database, redis_client
-from app.utils.stock_prices import get_current_price
+from app.routers.trading import get_current_price
 
 router = APIRouter()
 
