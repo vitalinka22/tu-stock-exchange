@@ -26,10 +26,12 @@ def shutdown_event():
     logger.info("Scheduler stopped")
 
 from app.routers.trading import router as trading_router
+from app.routers.auto_trades import router as auto_trades_router
 
 app = FastAPI(title="TU Stock Exchange API")
 
-app.include_router(trading_router)
+app.include_router(trading_router, prefix="/api")
+app.include_router(auto_trades_router, prefix="/api")
 
 @app.get("/")
 def root():
