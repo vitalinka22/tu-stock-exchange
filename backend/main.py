@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.tasks.snapshot import create_daily_snapshot
+from app.tasks.auto_trade_executor import check_auto_trades
 from app.core.config import settings
 from app.utils.logger import logger
 
@@ -11,9 +12,17 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     create_daily_snapshot,
     'cron',
-    hour=0,  # Midnight UTC
+    hour=0,
     minute=0,
     id='daily_snapshot_job',
+    replace_existing=True
+)
+
+scheduler.add_job(
+    check_auto_trades,
+    'interval',
+    hours=1,
+    id='auto_trades_job',
     replace_existing=True
 )
 
@@ -26,10 +35,12 @@ def shutdown_event():
     logger.info("Scheduler stopped")
 
 from app.routers.trading import router as trading_router
+from app.routers.auto_trades import router as auto_trades_router
 
 app = FastAPI(title="TU Stock Exchange API")
 
-app.include_router(trading_router)
+app.include_router(trading_router, prefix="/api")
+app.include_router(auto_trades_router, prefix="/api")
 
 @app.get("/")
 def root():
