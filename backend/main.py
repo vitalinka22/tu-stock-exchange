@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.tasks.snapshot import create_daily_snapshot
+from app.tasks.auto_trade_executor import check_auto_trades
 from app.core.config import settings
 from app.utils.logger import logger
 
@@ -11,9 +12,17 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     create_daily_snapshot,
     'cron',
-    hour=0,  # Midnight UTC
+    hour=0,
     minute=0,
     id='daily_snapshot_job',
+    replace_existing=True
+)
+
+scheduler.add_job(
+    check_auto_trades,
+    'interval',
+    hours=1,
+    id='auto_trades_job',
     replace_existing=True
 )
 
