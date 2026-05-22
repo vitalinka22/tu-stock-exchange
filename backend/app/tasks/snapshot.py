@@ -6,17 +6,12 @@ from app.db import database
 from app.routers.trading import get_current_price
 from sqlalchemy.orm import Session
 import redis
+from app.services.redis_client import redis_client
 from app.core.config import settings
 from app.utils.logger import logger
 
 def create_daily_snapshot():
     db = database.SessionLocal()
-    redis_conn = redis.Redis(
-        host=settings.REDIS_HOST,
-        port=settings.REDIS_PORT,
-        password=settings.REDIS_PASSWORD,
-        decode_responses=True
-    )
     try:
         users = db.query(models.User).filter(
             models.User.is_bankrupt == False

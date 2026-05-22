@@ -4,10 +4,21 @@ from app.tasks.snapshot import create_daily_snapshot
 from app.tasks.auto_trade_executor import check_auto_trades
 from app.core.config import settings
 from app.utils.logger import logger
+from app.routers import auth, users, leaderboard
+from app.routers.trading import router as trading_router
+from app.routers.auto_trades import router as auto_trades_router
+from app.services.redis_client import redis_client
 
-app = FastAPI()
+app = FastAPI(title="TU Stock Exchange API")
 
 scheduler = BackgroundScheduler()
+
+@app.on_event("startup")
+def startup_event():
+    if not redis_client.ping():
+        logger.error("Failed to connect to Redis on startup")
+    else:
+        logger.info("Connected to Redis successfully")
 
 scheduler.add_job(
     create_daily_snapshot,
@@ -34,11 +45,9 @@ def shutdown_event():
     scheduler.shutdown()
     logger.info("Scheduler stopped")
 
-from app.routers.trading import router as trading_router
-from app.routers.auto_trades import router as auto_trades_router
-
-app = FastAPI(title="TU Stock Exchange API")
-
+app.include_router(auth.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(leaderboard.router, prefix="/api")
 app.include_router(trading_router, prefix="/api")
 app.include_router(auto_trades_router, prefix="/api")
 
