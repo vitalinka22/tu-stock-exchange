@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     LOG_TO_FILE: bool = False
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
 
     class Config:
         env_file = ".env" #specifies the file from which to load environment variables

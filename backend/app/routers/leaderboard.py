@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from redis import Redis
-from app import schemas, models, database, redis_client
+from app import schemas, models
+from app.services import redis_client
+from app.db import database
 from app.routers.trading import get_current_price
+from app.schemas.leaderboard_item import LeaderboardItem
+from app.db.dependencies import get_db
 
 router = APIRouter()
 
-@router.get("/leaderboard", response_model=list[schemas.LeaderboardItem])
+@router.get("/leaderboard", response_model=list[LeaderboardItem])
 async def get_leaderboard(
-    db: Session = Depends(database.get_db),
-    redis: Redis = Depends(redis_client.get_redis)
+    db: Session = Depends(get_db),
 ):
 
     try:
@@ -60,8 +63,17 @@ async def get_leaderboard(
             })
 
         # Sort by portfolio value (descending) and return top 5
-        user_values.sort(key=lambda x: x["portfolio_value"], reverse=True)
-        return user_values[:5]
+        #user_values.sort(key=lambda x: x["portfolio_value"], reverse=True)
+        #return user_values[:5]
+
+        return [
+            schemas.LeaderboardItem(
+                user_id=item["user_id"],
+                username=item["username"],
+                portfolio_value=item["portfolio_value"]
+            ) 
+            for item in user_values[:5]
+        ]
 
     except Exception as e:
         raise HTTPException(
