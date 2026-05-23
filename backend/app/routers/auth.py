@@ -9,9 +9,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app.models.users import User
-from app.schemas.auth_schemas import RegisterRequest, LoginRequest, UserResponse, TokenResponse
+from backend.app.schemas.auth_schemas import RegisterRequest, LoginRequest, UserResponse, TokenResponse
 from app.core.security import hash_password, verify_password, create_access_token
 from app.db.dependencies import get_db
+
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -52,5 +53,3 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         "access_token": token,
         "token_type": "bearer"
     }
-
-#Bug: SHOULD BE from backend.app.schemas.auth_schemas import ...
