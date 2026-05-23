@@ -60,6 +60,9 @@ def search_ticker():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def download_tickers(tickers: list, period: str = "1d"):
+    data = yf.download(tickers, period=period)
+    return data["Close"]
 
 """
 Returns the stock price, caches it to redis. 
