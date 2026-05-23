@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class UserPublicResponse(BaseModel):
@@ -11,3 +12,6 @@ class UserPublicResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserUpdateRequest(BaseModel):
+    email: Optional[EmailStr] = None
