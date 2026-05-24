@@ -4,7 +4,9 @@ import yfinance as yf
 import redis
 import json
 from fastapi import FastAPI, APIRouter, HTTPException
+from apscheduler.schedulers.background import BackgroundScheduler
 
+scheduler = BackgroundScheduler()
 app = FastAPI()
 r = redis.Redis(host='localhost', port=6379, db=0)
 router = APIRouter(prefix="/stocks")
@@ -62,8 +64,31 @@ def search_ticker():
 
 def download_tickers(tickers: list, period: str = "1d"):
     data = yf.download(tickers, period=period)
+    if data is None or data.empty:
+        raise HTTPException(status_code=404, detail="No data found for given tickers")
     return data["Close"]
 
+@router.get("/check")
+def check():
+    try:
+        return download_tickers(["AAPL"], "1d")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+def update_price_history():
+    # 1. get all tickers from your portfolios in DB
+    # tickers = get_all_tickers_from_db()# get users tickets from db
+    tickers = ["AAPL", "META"]
+    # 2. download latest price history
+    data = yf.download(tickers, period="1d")
+
+    # 3. save to DB or cache
+    for ticker in tickers:
+        print("Running update_price_history...")
+        price = data["Close"][ticker].iloc[-1]
+        r.setex(ticker, 3600, json.dumps(float(price)))
+scheduler.add_job(update_price_history, "interval", hours=1)
+scheduler.start()
 """
 Returns the stock price, caches it to redis. 
 
