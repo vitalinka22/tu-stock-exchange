@@ -42,7 +42,7 @@ def search_ticker(q: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/popular")
-def search_ticker():
+def search_popular_tickers():
     try:
         results = yf.screen("most_actives")
         quotes = results["quotes"]
