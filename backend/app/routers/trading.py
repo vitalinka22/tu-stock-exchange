@@ -5,7 +5,7 @@ from app.models.trade import Trade
 from app.models.users import User
 from app.db.dependencies import get_db
 from app.models.holding import Holding
-
+from app.core.auth_dependencies import get_current_user
 
 
 router = APIRouter()
@@ -26,15 +26,12 @@ def get_current_price(ticker: str) -> float:
 class TradeRequest(BaseModel):
     ticker: str
     quantity: int
-    user_id: int # temporary - later comes from JWT token
 
 @router.post("/trades/buy")
-def buy_stock(trade: TradeRequest, db : Session = Depends(get_db)):
+def buy_stock(trade: TradeRequest, current_user : User = Depends(get_current_user),db : Session = Depends(get_db)):
 
     #find the user in database
-    user = db.query(User).filter(User.id == trade.user_id).first()
-    if not user:
-        raise HTTPException(status_code = 404, detail = 'User not found')
+    user = current_user
     
     if user.is_bankrupt:
         raise HTTPException(status_code = 403, detail = "Account is bankrupt")
@@ -90,12 +87,10 @@ def buy_stock(trade: TradeRequest, db : Session = Depends(get_db)):
     }   
 
 @router.post("/trades/sell")
-def sell_stock(trade: TradeRequest, db: Session = Depends(get_db)):
+def sell_stock(trade: TradeRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
 
-    user = db.query(User).filter(User.id == trade.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
+    user = current_user
+
     if user.is_bankrupt:
         raise HTTPException(status_code=403, detail="Account is bankrupt")
     
@@ -142,13 +137,9 @@ def sell_stock(trade: TradeRequest, db: Session = Depends(get_db)):
     }
 
 @router.get("/portfolio")
-def get_portfolio(user_id : int, db : Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user :
-        raise HTTPException(status_code = 404, detail = "User not found")
-    
-    holdings = db.query(Holding).filter(Holding.user_id == user_id).all()
+def get_portfolio(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = current_user
+    holdings = db.query(Holding).filter(Holding.user_id == user.id).all()
 
     holdings_data = []
     total_current_value = 0.0
@@ -183,26 +174,18 @@ def get_portfolio(user_id : int, db : Session = Depends(get_db)):
     }
 
 @router.get("/trades/history")
-def get_history(user_id : int, page: int = 1, limit : int = 10, db : Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user : 
-        raise HTTPException(status_code = 404, detail = "User not found")
-    
+def get_history(current_user: User = Depends(get_current_user), page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     offset = (page-1)*limit
-    trades = db.query(Trade).filter(Trade.user_id == user_id).offset(offset).limit(limit).all()
+    trades = db.query(Trade).filter(Trade.user_id == current_user.id).offset(offset).limit(limit).all()
     return {"trades" : trades, 
             "page" : page, 
             "limit":limit}
 
 
 @router.get('/portfolio/networth')
-def get_networth(user_id:int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code = 404, detail = "User not found")
-    
-    holdings = db.query(Holding).filter(Holding.user_id == user_id).all()
+def get_networth(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = current_user
+    holdings = db.query(Holding).filter(Holding.user_id == user.id).all()
 
     total_stock_value = 0.0
     for holding in holdings:
