@@ -33,7 +33,7 @@ def create_daily_snapshot():
                 logger.debug(f"Snapshot already exists for user {user.id} today")
                 continue
 
-            net_worth = calculate_net_worth(db, user.id, redis_conn)
+            net_worth = calculate_net_worth(db, user.id, redis_client)
             
             snapshot = models.NetWorthHistory(
                 user_id=user.id,
@@ -51,7 +51,6 @@ def create_daily_snapshot():
         db.rollback()
     finally:
         db.close()
-        redis_conn.close()
 
 def calculate_net_worth(db: Session, user_id: int, redis: redis.Redis) -> float:
     """Calculate current net worth (cash + holdings value)"""
@@ -63,7 +62,7 @@ def calculate_net_worth(db: Session, user_id: int, redis: redis.Redis) -> float:
     holdings_value = 0.0
     
     for holding in holdings:
-        current_price = get_current_price(holding.symbol, redis)
+        current_price = get_current_price(holding.ticker, redis)
         if current_price is not None:
             holdings_value += holding.quantity * current_price
 
