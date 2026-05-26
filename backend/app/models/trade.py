@@ -8,7 +8,7 @@ class Trade(Base):
     __tablename__ = "trades"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
     ticker = Column(String)
     trade_type = Column(String)  # buy or sell
     quantity = Column(Integer)

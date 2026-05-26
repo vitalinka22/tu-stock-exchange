@@ -9,7 +9,7 @@ class Holding(Base):
     __tablename__ = "holdings"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     ticker = Column(String, nullable=False)
     quantity = Column(Integer, nullable=False)
     average_buy_price = Column(Float, nullable=False)
