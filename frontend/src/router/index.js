@@ -22,7 +22,8 @@ const routes = [
 
   // meta: { requiresAuth: true } = like @Secured annotation in Spring
   // marks these routes as protected — only logged in users can access them
-  { path: '/portfolio', component: Portfolio, meta: { requiresAuth: true } },
+  { path: '/users/:id/portfolio', component: Portfolio, meta: { requiresAuth: true } },
+  //{ path: '/users/:id/portfolio', component: Portfolio },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
 
   { path: '/', redirect: '/market' },  // Default redirect to market

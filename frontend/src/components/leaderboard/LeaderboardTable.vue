@@ -31,7 +31,8 @@ defineProps({
 
 <style scoped>
 table {
-  width: 100%;
+  width: 70%;
+  margin: 0 auto;
   border-collapse: collapse;
 }
 
@@ -42,7 +43,8 @@ td {
 }
 
 .highlighted {
-  background-color: #ffeaa7;
+  background-color: #2563eb;
+  color: white;
 }
 </style>
 
