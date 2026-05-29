@@ -11,7 +11,8 @@ import Leaderboard from '../pages/Leaderboard.vue'
 import NotFound from '../pages/NotFound.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Default from '../pages/Default.vue'
-
+// import (na górze z resztą)IGOR
+import Profile from '../pages/Profile.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -19,6 +20,9 @@ const routes = [
   { path: '/market', component: Market },
   { path: '/leaderboard', component: Leaderboard },
   { path: '/default', component: Default },
+
+  // route (w tablicy routes, obok Dashboard)
+{ path: '/profile', component: Profile, meta: { requiresAuth: true } },
 
   // meta: { requiresAuth: true } = like @Secured annotation in Spring
   // marks these routes as protected — only logged in users can access them

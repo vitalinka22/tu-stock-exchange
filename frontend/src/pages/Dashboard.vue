@@ -74,7 +74,17 @@ onMounted(async () => {
     <div v-else-if="error" class="text-red-500">{{ error }}</div>
 
     <div v-else>
-
+<!-- net worth warning banner -->
+<div
+  v-if="netWorth < 500"
+  class="mb-6 flex items-center gap-3 rounded-xl border border-red-800 bg-red-950 px-5 py-4"
+>
+  <span class="text-red-400 text-xl">⚠️</span>
+  <div>
+    <p class="text-red-400 font-semibold text-sm">Low account value</p>
+    <p class="text-red-500 text-xs mt-0.5">Your net worth is below $500. Consider adding funds or reviewing your positions.</p>
+  </div>
+</div>
       <!-- summary cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 
