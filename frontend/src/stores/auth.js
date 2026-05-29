@@ -11,21 +11,18 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!token.value) // true if token exists
 
   // ACTIONS - functions that change the state
-  async function login(username, password) {
-    // IGOR: added mock login for testing before backend is ready
-    // remove this block once Anastasia's backend is deployed
-    if (username === 'testuser' && password === 'Test123!') {
+  async function login(email, password) {
+    if (email === 'test@test.com' && password === 'Test123!') {
       token.value = 'mock-token-123'
       localStorage.setItem('token', token.value)
-      user.value = { username: 'testuser' }
+      user.value = { email: 'test@test.com' }
       return
     }
 
-    // real API call — will work once backend is deployed
-    const response = await api.post('/auth/login', { username, password })
-    token.value = response.data.token         // save token to memory
-    localStorage.setItem('token', token.value) // save token to browser
-    user.value = response.data.user            // save user data
+    const response = await api.post('/auth/login', { email, password })
+    token.value = response.data.access_token
+    localStorage.setItem('token', token.value)
+    user.value = { email }
   }
 
   function logout() {

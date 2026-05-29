@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 class HoldingItem(BaseModel):
     ticker: str
     quantity: int

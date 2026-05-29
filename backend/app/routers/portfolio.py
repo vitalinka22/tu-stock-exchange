@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import models, schemas, database
+from app import models, schemas
+from app.db.dependencies import get_db
+from pydantic import BaseModel
 from datetime import datetime
 from typing import List
 
@@ -19,7 +21,7 @@ class PortfolioHistoryItem(BaseModel):
 @router.get("/users/{user_id}/portfolio/history", response_model=List[PortfolioHistoryItem])
 def get_portfolio_history(
     user_id: int,
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(get_db)
 ):
 
     user = db.query(models.User).filter(models.User.id == user_id).first()
