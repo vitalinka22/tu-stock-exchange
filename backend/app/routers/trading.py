@@ -63,7 +63,11 @@ def buy_stock(trade: TradeRequest, current_user : User = Depends(get_current_use
         Holding.ticker == trade.ticker).first()
     
     if holding:
+        new_avg = (
+            (holding.quantity * holding.average_buy_price) + (trade.quantity * price)
+        ) / (holding.quantity + trade.quantity)
         holding.quantity += trade.quantity
+        holding.average_buy_price = new_avg
     else:
         new_holding = Holding(
             user_id = user.id, 

@@ -22,14 +22,14 @@
 
           <v-text-field
             class="mb-3"
-            v-model="username"
-            :rules="usernameRules"
-            label="Username"
-            type="type"
+            v-model="email"
+            :rules="emailRules"
+            label="Email"
+            type="email"
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-account-outline"
+            prepend-inner-icon="mdi-email-outline"
           />
 
           <v-text-field
@@ -111,7 +111,7 @@
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth' // IGOR: imported auth store to handle real login
 
-  const username = ref('')
+  const email = ref('')
   const password = ref('')
   const loading = ref(false)
   const errorMessage = ref('')
@@ -119,14 +119,11 @@
   const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null)
 
   const router = useRouter()
-  const authStore = useAuthStore() // IGOR: initialized auth store
+  const authStore = useAuthStore()
 
-  const usernameRules = [
-    (v: string) => !!v || 'Username required',
-    (v: string) => v.length >= 5 || 'Minimum 5 characters',
-    (v: string) => v.length <= 20 || 'Maximum 20 characters',
-    (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed',
-    (v: string) => !v.includes(' ') || 'Spaces are not allowed'
+  const emailRules = [
+    (v: string) => !!v || 'Email required',
+    (v: string) => /.+@.+\..+/.test(v) || 'Email must be valid'
   ]
 
   const passwordRules = [
@@ -148,7 +145,7 @@
     try {
       // IGOR: replaced fake setTimeout with real API call
       // authStore.login() calls POST /auth/login and saves token to localStorage
-      await authStore.login(username.value, password.value)
+      await authStore.login(email.value, password.value)
 
       // IGOR: redirect to dashboard after successful login (was redirecting to '/')
       router.push('/dashboard')

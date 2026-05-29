@@ -38,7 +38,7 @@ async def get_leaderboard(
         ticker_prices = {}
         
         for ticker in tickers:
-            price = await get_current_price(ticker, redis)
+            price = get_current_price(ticker)
             if price is None:
                 raise HTTPException(
                     status_code=503,

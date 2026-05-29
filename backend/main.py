@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.tasks.snapshot import create_daily_snapshot
 from app.tasks.auto_trade_executor import check_auto_trades
@@ -11,6 +12,13 @@ from app.services.redis_client import redis_client
 from app.routers.leaderboard_history import router as leaderboard_history_router
 
 app = FastAPI(title="TU Stock Exchange API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080", "http://0.0.0.0:8080", "http://127.0.0.1:8080"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 scheduler = BackgroundScheduler()
 

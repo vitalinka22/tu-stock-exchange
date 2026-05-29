@@ -7,8 +7,9 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    
+
     email = Column(String, unique=True)
+    username = Column(String, unique=True, nullable=True)
     password_hash = Column(String)
     balance = Column(Float, default=10000) # initial balance for new users
     is_bankrupt = Column(Boolean, default=False)

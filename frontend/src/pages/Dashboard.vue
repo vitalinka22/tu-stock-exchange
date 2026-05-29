@@ -21,7 +21,7 @@ const startingBalance = 10000  // fixed starting capital (no need for ref, never
 // portfolioValue recalculates whenever portfolio.value changes
 // same as: portfolio.stream().mapToDouble(h -> h.shares * h.price).sum()
 const portfolioValue = computed(() =>
-  portfolio.value.reduce((sum, h) => sum + h.shares * h.current_price, 0)
+  portfolio.value.reduce((sum, h) => sum + h.quantity * h.current_price, 0)
 )
 
 // these two also recalculate automatically when netWorth changes
@@ -43,7 +43,7 @@ onMounted(async () => {
     // if response.data.holdings is null or undefined, use [] instead
     portfolio.value = response.data.holdings ?? []
     cash.value = response.data.cash_balance ?? 0
-    netWorth.value = response.data.net_worth ?? 0
+    netWorth.value = (response.data.cash_balance ?? 0) + (response.data.total_current_value ?? 0)
 
   } catch (e) {
     // Backend not running locally yet — using mock data for now
@@ -122,13 +122,13 @@ onMounted(async () => {
           <tbody>
             <tr
               v-for="holding in portfolio"
-              :key="holding.symbol"
+              :key="holding.ticker"
               class="border-b border-zinc-800 hover:bg-zinc-800 transition"
             >
-              <td class="px-6 py-4 font-bold text-yellow-500">{{ holding.symbol }}</td>
-              <td class="px-6 py-4 text-zinc-300">{{ holding.shares }}</td>
+              <td class="px-6 py-4 font-bold text-yellow-500">{{ holding.ticker }}</td>
+              <td class="px-6 py-4 text-zinc-300">{{ holding.quantity }}</td>
               <td class="px-6 py-4 text-zinc-300">${{ holding.current_price?.toFixed(2) ?? '—' }}</td>
-              <td class="px-6 py-4 text-white font-medium">${{ (holding.shares * holding.current_price).toFixed(2) }}</td>
+              <td class="px-6 py-4 text-white font-medium">${{ (holding.quantity * holding.current_price).toFixed(2) }}</td>
             </tr>
           </tbody>
         </table>

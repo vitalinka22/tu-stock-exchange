@@ -21,3 +21,4 @@ pydantic-settings==2.4.0
 pydantic[email]==2.13.3
 python-jose[cryptography]==3.3.0
 passlib==1.7.4
+alembic==1.13.1
