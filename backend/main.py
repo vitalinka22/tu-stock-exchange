@@ -8,6 +8,7 @@ from app.routers import auth, users, leaderboard
 from app.routers.trading import router as trading_router
 from app.routers.auto_trades import router as auto_trades_router
 from app.services.redis_client import redis_client
+from app.routers.leaderboard_history import router as leaderboard_history_router
 
 app = FastAPI(title="TU Stock Exchange API")
 
@@ -50,6 +51,7 @@ app.include_router(users.router, prefix="/api")
 app.include_router(leaderboard.router, prefix="/api")
 app.include_router(trading_router, prefix="/api")
 app.include_router(auto_trades_router, prefix="/api")
+app.include_router(leaderboard_history_router, prefix="/api")
 
 @app.get("/")
 def root():
