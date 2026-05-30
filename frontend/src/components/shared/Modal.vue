@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
   title: string
   modelValue: boolean
   confirmationText: string
-  closeOnOverlay: boolean
+  closeOnOverlay?: boolean
 }>(), {
   closeOnOverlay: true,
 })

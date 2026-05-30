@@ -1,6 +1,6 @@
 <template>
 
-  <v-container fluid  class="register-background d-flex align-center justify-center" style="min-height: 100vh">
+  <v-container fluid class="register-background d-flex align-center justify-center" style="min-height: 100vh">
 
     <v-card 
       width="420"
@@ -16,9 +16,9 @@
       <div class="d-flex align-center justify-space-between">
         <v-card-subtitle class="mb-3">
           Already have an account? 
-            <RouterLink to="/login" class="signin-link ml-1">
-              Sign in 
-            </RouterLink>
+          <RouterLink to="/login" class="signin-link ml-1">
+            Sign in 
+          </RouterLink>
         </v-card-subtitle>
       </div>
 
@@ -34,45 +34,69 @@
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-email-outline"
-          /> 
-
-          <v-text-field
-            v-model="username"
-            :rules="usernameRules"
-            label="Username"
-            type="text"
-            class="mb-3"
-            variant="outlined"
-            rounded="lg"
-            density="comfortable"
-            prepend-inner-icon="mdi-account-outline"
-          /> 
+          >
+            <template v-slot:prepend-inner>
+              <Mail :size="20" class="text-grey-darken-1" />
+            </template>
+          </v-text-field>
 
           <v-text-field
             v-model="password"
             :rules="passwordRules"
+            :type="showPassword ? 'text' : 'password'"
             label="Password"
-            type="password"
             class="mb-3"
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-lock-outline"
-          /> 
-
+          >
+            <template v-slot:prepend-inner>
+              <Lock :size="20" class="text-grey-darken-1" />
+            </template>
+            <template v-slot:append-inner>
+              <Eye 
+                v-if="showPassword" 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showPassword = false"
+              />
+              <EyeOff 
+                v-else 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showPassword = true"
+              />
+            </template>
+          </v-text-field>
 
           <v-text-field
             v-model="confirmPassword"
             :rules="confirmPasswordRules"
+            :type="showConfirmPassword ? 'text' : 'password'"
             label="Confirm Password"
-            type="password"
             class="mb-3"
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-lock-outline"
-          /> 
+          >
+            <template v-slot:prepend-inner>
+              <Lock :size="20" class="text-grey-darken-1" />
+            </template>
+            <template v-slot:append-inner>
+              <Eye 
+                v-if="showConfirmPassword" 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showConfirmPassword = false"
+              />
+              <EyeOff 
+                v-else 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showConfirmPassword = true"
+              />
+            </template>
+          </v-text-field>
 
           <v-alert v-if="errorMessage" type="error" 
             variant="tonal"
@@ -96,6 +120,7 @@
           class="mt-4 text-none font-weight-bold"
           rounded="lg"
         >
+          <UserPlus :size="18" class="mr-2" />
           Sign up
         </v-btn>
 
@@ -110,15 +135,26 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
-  import api from '@/api/axiosInstance' // IGOR: imported axios to call real API
+  import api from '@/api/axiosInstance'
+  
+  import { 
+    Mail,      
+    Lock,      
+    Eye,       
+    EyeOff,    
+    UserPlus   
+  } from 'lucide-vue-next'
 
   const email = ref('')
   const password = ref('')
   const loading = ref(false)
   const errorMessage = ref('')
   const form = ref<{ validate: () => Promise<{ valid: boolean }> } | null>(null)
-  const username = ref('')
   const confirmPassword = ref('')
+  
+  // Für Password Visibility Toggle
+  const showPassword = ref(false)
+  const showConfirmPassword = ref(false)
 
   const router = useRouter()
 
@@ -135,14 +171,6 @@
     (v: string) => /[\d\W]/.test(v) || 'At least 1 number or special character'
   ]
 
-  const usernameRules = [
-    (v: string) => !!v || 'Username required',
-    (v: string) => v.length >= 5 || 'Minimum 5 characters',
-    (v: string) => v.length <= 20 || 'Maximum 20 characters',
-    (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed',
-    (v: string) => !v.includes(' ') || 'Spaces are not allowed'
-  ]
-
   const confirmPasswordRules = [
     (v: string) => !!v || 'Please confirm your password',
     (v: string) => v === password.value || 'Passwords do not match'
@@ -157,20 +185,14 @@
     errorMessage.value = ''
 
     try {
-      // IGOR: replaced fake setTimeout with real API call
-      // calls POST /auth/register with email, username and password
       await api.post('/auth/register', {
         email: email.value,
-        username: username.value,
         password: password.value
       })
 
-      // IGOR: after successful registration redirect to login
-      // so user can sign in with their new account
       router.push('/login')
 
     } catch (error) {
-      // IGOR: shows error if registration fails (email taken, server down, etc.)
       errorMessage.value = 'Registration failed. Please try again.'
     } finally {
       loading.value = false
@@ -196,5 +218,9 @@
     color: #283593;
     text-decoration: none;
     font-weight: 500;
+  }
+  
+  .cursor-pointer {
+    cursor: pointer;
   }
 </style>

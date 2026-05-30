@@ -22,27 +22,51 @@
 
           <v-text-field
             class="mb-3"
-            v-model="username"
-            :rules="usernameRules"
-            label="Username"
-            type="type"
+            v-model="email"
+            :rules="emailRules"
+            label="Email"
+            type="email"
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-account-outline"
-          />
+          >
+
+          <template v-slot:prepend-inner>
+              <Mail :size="20" class="text-grey-darken-1" />
+          </template>
+
+        </v-text-field>
 
           <v-text-field
             class="mb-3" 
             v-model="password"
             :rules="passwordRules"
             label="Password"
-            type="password"
+            :type="showPassword ? 'text' : 'password'"
             variant="outlined"
             rounded="lg"
             density="comfortable"
-            prepend-inner-icon="mdi-lock-outline"
-          />
+          >
+
+          <template v-slot:prepend-inner>
+              <Lock :size="20" class="text-grey-darken-1" />
+            </template>
+            <template v-slot:append-inner>
+              <Eye 
+                v-if="showPassword" 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showPassword = false"
+              />
+              <EyeOff 
+                v-else 
+                :size="18" 
+                class="cursor-pointer text-grey-darken-1"
+                @click="showPassword = true"
+              />
+            </template>
+
+          </v-text-field>
 
           <div class="d-flex align-center justify-space-between">
               <label class="d-flex align-center ga-2">
@@ -82,6 +106,7 @@
           class="mt-4 text-none font-weight-bold"
           rounded="lg"
         >
+        <LogIn :size="18" class="mr-2" />
           Sign in
         </v-btn>
 
@@ -111,7 +136,18 @@
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth' // IGOR: imported auth store to handle real login
 
-  const username = ref('')
+  const showPassword = ref(false)
+
+
+  import { 
+    Mail,      
+    Lock,      
+    Eye,       
+    EyeOff,    
+    LogIn   
+  } from 'lucide-vue-next'
+
+  const email = ref('')
   const password = ref('')
   const loading = ref(false)
   const errorMessage = ref('')
@@ -121,12 +157,9 @@
   const router = useRouter()
   const authStore = useAuthStore() // IGOR: initialized auth store
 
-  const usernameRules = [
-    (v: string) => !!v || 'Username required',
-    (v: string) => v.length >= 5 || 'Minimum 5 characters',
-    (v: string) => v.length <= 20 || 'Maximum 20 characters',
-    (v: string) => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed',
-    (v: string) => !v.includes(' ') || 'Spaces are not allowed'
+  const emailRules = [
+    (v: string) => !!v || 'Email address required',
+    (v: string) => /.+@.+\..+/.test(v) || 'Email must be valid'
   ]
 
   const passwordRules = [
@@ -148,7 +181,7 @@
     try {
       // IGOR: replaced fake setTimeout with real API call
       // authStore.login() calls POST /auth/login and saves token to localStorage
-      await authStore.login(username.value, password.value)
+      await authStore.login(email.value, password.value)
 
       // IGOR: redirect to dashboard after successful login (was redirecting to '/')
       router.push('/dashboard')
