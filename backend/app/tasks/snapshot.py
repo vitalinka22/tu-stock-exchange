@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from app import models
 from app.db import database
-from app.routers.trading import get_current_price
+from app.services.stock_price import get_current_price
 from sqlalchemy.orm import Session
 import redis
 from app.services.redis_client import redis_client
@@ -62,7 +62,7 @@ def calculate_net_worth(db: Session, user_id: int, redis: redis.Redis) -> float:
     holdings_value = 0.0
     
     for holding in holdings:
-        current_price = get_current_price(holding.ticker, redis)
+        current_price = get_current_price(holding.ticker)
         if current_price is not None:
             holdings_value += holding.quantity * current_price
 

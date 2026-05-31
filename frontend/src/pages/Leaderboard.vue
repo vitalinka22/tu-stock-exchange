@@ -1,105 +1,84 @@
 <template>
-  <div>
+  <div class="p-8 w-full max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-2 text-white">Leaderboard</h1>
+    <p class="text-sm mb-10 text-yellow-600 uppercase tracking-widest font-medium">Top traders</p>
 
-    <v-container>
+    <div v-if="loading" class="text-gray-400">Loading...</div>
+    <div v-else-if="error" class="text-red-400">{{ error }}</div>
 
-      <div style="max-width: 600px; margin: 0 auto">
-
-        <LeaderboardChart :players="players" />
-
+    <div v-else>
+      <!-- bar chart -->
+      <div class="rounded-xl bg-zinc-900 border border-zinc-800 p-6 mb-8" style="max-width: 600px">
+        <LeaderboardChart :players="chartData" />
       </div>
 
-
-      <br><br>
-
-
-      <!-- Leaderboard table -->
-      <LeaderboardTable
-        :users="users"
-        :currentUserId="currentUserId"
-      />
-
-    </v-container>
-
+      <!-- table -->
+      <div class="rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden">
+        <div class="px-6 py-5 border-b border-zinc-800">
+          <h2 class="text-base font-semibold text-white uppercase tracking-widest">Rankings</h2>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left border-b border-zinc-800">
+              <th class="px-6 py-3 text-xs uppercase tracking-widest text-zinc-500">Rank</th>
+              <th class="px-6 py-3 text-xs uppercase tracking-widest text-zinc-500">Trader</th>
+              <th class="px-6 py-3 text-xs uppercase tracking-widest text-zinc-500">Net Worth</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(user, index) in users"
+              :key="user.user_id"
+              class="border-b border-zinc-800 transition"
+              :class="user.user_id === currentUserId ? 'bg-yellow-900/30' : 'hover:bg-zinc-800'"
+            >
+              <td class="px-6 py-4 text-zinc-400">
+                <span v-if="index === 0">🥇</span>
+                <span v-else-if="index === 1">🥈</span>
+                <span v-else-if="index === 2">🥉</span>
+                <span v-else class="text-zinc-500">{{ index + 1 }}</span>
+              </td>
+              <td class="px-6 py-4 font-medium text-white">
+                {{ user.username }}
+                <span v-if="user.user_id === currentUserId" class="ml-2 text-xs text-yellow-500">(you)</span>
+              </td>
+              <td class="px-6 py-4 text-emerald-400 font-semibold">${{ user.portfolio_value?.toLocaleString() }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import LeaderboardChart from '../components/shared/LeaderboardChart.vue'
+import api from '@/api/axiosInstance'
 
+const authStore = useAuthStore()
+const users = ref([])
+const loading = ref(true)
+const error = ref(null)
 
-<script setup lang="ts">
+const currentUserId = computed(() => authStore.user?.id ?? null)
 
-  // Vue imports
-  import { onMounted, ref } from 'vue';
+const chartData = computed(() =>
+  users.value.slice(0, 5).map(u => ({
+    username: u.username,
+    portfolio_value: u.portfolio_value,
+  }))
+)
 
-  // Existing leaderboard chart
-  import LeaderboardChart from '../components/shared/LeaderboardChart.vue'
-
-  // Added leaderboard table
-  import LeaderboardTable from '../components/leaderboard/LeaderboardTable.vue'
-
-
-
-  // Existing fake chart data
-  // TODO: Replace later with backend API data
-  const players = ref([
-    { username: 'a_trades', portfolio_value: 42100 },
-    { username: 'b_trades', portfolio_value: 38540 },
-    { username: 'c_trades', portfolio_value: 31220 },
-    { username: 'd_trades', portfolio_value: 27800 },
-    { username: 'crypto_carl', portfolio_value: 19500 },
-  ])
-
-
-
-  // Added fake leaderboard table data
-  // TODO: Replace later with backend API data
-  const users = ref([
-
-    {
-      id: 1,
-      username: 'a_trades',
-      netWorth: 42100
-    },
-
-    {
-      id: 2,
-      username: 'b_trades',
-      netWorth: 38540
-    },
-
-    {
-      id: 3,
-      username: 'c_trades',
-      netWorth: 31220
-    },
-
-    {
-      id: 4,
-      username: 'd_trades',
-      netWorth: 27800
-    },
-
-    {
-      id: 5,
-      username: 'crypto_carl',
-      netWorth: 19500
-    }
-
-  ])
-
-
-
-  // Current logged-in user
-  // Used for highlighted row
-  const currentUserId = 2
-
-
-
-  // Existing backend example
-  // onMounted(async () => {
-  //   const response = await fetch('http://localhost:8000/leaderboard')
-  //   const data = await response.json()
-  //   players.value = data.slice(0, 5)
-  // })
-
+onMounted(async () => {
+  try {
+    const response = await api.get('/leaderboard')
+    users.value = response.data
+  } catch (e) {
+    error.value = 'Could not load leaderboard.'
+  } finally {
+    loading.value = false
+  }
+})
 </script>

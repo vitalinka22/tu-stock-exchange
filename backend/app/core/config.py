@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ""
+    FINNHUB_API_KEY: str = ""
 
     class Config:
         env_file = ".env" #specifies the file from which to load environment variables

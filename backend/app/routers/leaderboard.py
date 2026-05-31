@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from redis import Redis
-from app import schemas, models
-from app.services import redis_client
-from app.db import database
-from app.routers.trading import get_current_price
+from app.models.users import User
+from app.models.holding import Holding
+from app.services.stock_price import get_current_price
 from app.schemas.leaderboard_item import LeaderboardItem
 from app.db.dependencies import get_db
 
@@ -17,15 +15,15 @@ async def get_leaderboard(
 
     try:
         users = db.query(
-            models.User.id,
-            models.User.username,
-            models.User.balance
+            User.id,
+            User.username,
+            User.balance
         ).all()
 
         holdings = db.query(
-            models.Holding.user_id,
-            models.Holding.ticker,
-            models.Holding.quantity
+            Holding.user_id,
+            Holding.ticker,
+            Holding.quantity
         ).all()
 
         user_holdings = {}
@@ -39,12 +37,7 @@ async def get_leaderboard(
         
         for ticker in tickers:
             price = get_current_price(ticker)
-            if price is None:
-                raise HTTPException(
-                    status_code=503,
-                    detail=f"Could not fetch price for {ticker}. Service temporarily unavailable."
-                )
-            ticker_prices[ticker] = price
+            ticker_prices[ticker] = price if price is not None else 0.0
 
         # Calculate portfolio values
         user_values = []
@@ -62,16 +55,14 @@ async def get_leaderboard(
                 "portfolio_value": round(total_value, 2)
             })
 
-        # Sort by portfolio value (descending) and return top 5
-        #user_values.sort(key=lambda x: x["portfolio_value"], reverse=True)
-        #return user_values[:5]
+        user_values.sort(key=lambda x: x["portfolio_value"], reverse=True)
 
         return [
-            schemas.LeaderboardItem(
+            LeaderboardItem(
                 user_id=item["user_id"],
                 username=item["username"],
                 portfolio_value=item["portfolio_value"]
-            ) 
+            )
             for item in user_values[:5]
         ]
 

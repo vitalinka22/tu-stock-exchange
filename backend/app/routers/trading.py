@@ -1,26 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.models.trade import Trade
 from app.models.users import User
 from app.db.dependencies import get_db
 from app.models.holding import Holding
 from app.core.auth_dependencies import get_current_user
+from app.services.stock_price import get_current_price
 
 
 router = APIRouter()
-
-# FAKE PRICE FUNCTION
-#BE3 ALAN PLEASE IMPLEMENT IT 
-def get_current_price(ticker: str) -> float:
-    fake_prices = {
-        "AAPL": 150.25,
-        "GOOGL": 2800.00,
-        "TSLA": 200.00,
-        "MSFT": 380.00,
-        "AMZN": 3500.00,
-    }
-    return fake_prices.get(ticker, 100.00)
 
 # data the frontend send
 class TradeRequest(BaseModel):
@@ -37,7 +26,9 @@ def buy_stock(trade: TradeRequest, current_user : User = Depends(get_current_use
         raise HTTPException(status_code = 403, detail = "Account is bankrupt")
     
     price = get_current_price(trade.ticker)
-    total_cost = price*trade.quantity
+    if price is None:
+        raise HTTPException(status_code=503, detail=f"Could not fetch price for {trade.ticker}")
+    total_cost = price * trade.quantity
 
     if user.balance < total_cost:
         raise HTTPException(
@@ -110,6 +101,8 @@ def sell_stock(trade: TradeRequest, current_user: User = Depends(get_current_use
         )
 
     price = get_current_price(trade.ticker)
+    if price is None:
+        raise HTTPException(status_code=503, detail=f"Could not fetch price for {trade.ticker}")
     total_value = price * trade.quantity
 
     new_trade = Trade(

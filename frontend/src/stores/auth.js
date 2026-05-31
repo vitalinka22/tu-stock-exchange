@@ -3,33 +3,28 @@ import { ref, computed } from 'vue'
 import api from '../api/axiosInstance'
 
 export const useAuthStore = defineStore('auth', () => {
-  // STATE - shared memory (what we store)
   const token = ref(localStorage.getItem('token') || null)
-  const user = ref(null)
+  const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
 
-  // GETTERS - computed values based on state
-  const isLoggedIn = computed(() => !!token.value) // true if token exists
+  const isLoggedIn = computed(() => !!token.value)
 
-  // ACTIONS - functions that change the state
   async function login(email, password) {
-    if (email === 'test@test.com' && password === 'Test123!') {
-      token.value = 'mock-token-123'
-      localStorage.setItem('token', token.value)
-      user.value = { email: 'test@test.com' }
-      return
-    }
-
     const response = await api.post('/auth/login', { email, password })
     token.value = response.data.access_token
     localStorage.setItem('token', token.value)
-    user.value = { email }
+
+    // fetch full user profile so username is available everywhere
+    const meResponse = await api.get('/users/me')
+    user.value = meResponse.data
+    localStorage.setItem('user', JSON.stringify(user.value))
   }
 
   function logout() {
-    token.value = null  // clear token from memory
-    user.value = null   // clear user data
-    localStorage.removeItem('token') // clear token from browser
-    window.location.href = '/login'  // redirect to login page
+    token.value = null
+    user.value = null
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    window.location.href = '/login'
   }
 
   return { token, user, isLoggedIn, login, logout }
