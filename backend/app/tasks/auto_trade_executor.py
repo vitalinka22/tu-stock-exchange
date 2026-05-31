@@ -3,7 +3,7 @@ from app.models.auto_trade import AutoTrade
 from app.models.users import User
 from app.models.holding import Holding
 from app.models.trade import Trade
-from app.routers.trading import get_current_price
+from app.services.stock_price import get_current_price
 
 def check_auto_trades():
     db = SessionLocal()
@@ -14,6 +14,8 @@ def check_auto_trades():
         for auto_trade in active_trades:
 
             current_price = get_current_price(auto_trade.ticker)
+            if current_price is None:
+                continue
 
             should_execute = False
 

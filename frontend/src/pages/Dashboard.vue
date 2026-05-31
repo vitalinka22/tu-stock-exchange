@@ -75,6 +75,14 @@ onMounted(async () => {
 
     <div v-else>
 
+      <!-- warning banner: net worth below $500 -->
+      <div
+        v-if="netWorth > 0 && netWorth < 500"
+        class="mb-6 rounded-xl border border-red-500 bg-red-900/30 px-6 py-4 text-red-300"
+      >
+        Warning: your net worth is below $500. You may be defaulted soon if it drops below $100.
+      </div>
+
       <!-- summary cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
 

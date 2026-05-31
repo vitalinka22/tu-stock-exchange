@@ -8,6 +8,7 @@ from app.utils.logger import logger
 from app.routers import auth, users, leaderboard
 from app.routers.trading import router as trading_router
 from app.routers.auto_trades import router as auto_trades_router
+from app.routers.stocks import router as stocks_router
 from app.services.redis_client import redis_client
 from app.routers.leaderboard_history import router as leaderboard_history_router
 
@@ -15,7 +16,10 @@ app = FastAPI(title="TU Stock Exchange API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://0.0.0.0:8080", "http://127.0.0.1:8080"],
+    allow_origins=[
+        "http://localhost:8080", "http://0.0.0.0:8080", "http://127.0.0.1:8080",
+        "http://localhost:5173", "http://127.0.0.1:5173",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -59,6 +63,7 @@ app.include_router(users.router, prefix="/api")
 app.include_router(leaderboard.router, prefix="/api")
 app.include_router(trading_router, prefix="/api")
 app.include_router(auto_trades_router, prefix="/api")
+app.include_router(stocks_router, prefix="/api")
 app.include_router(leaderboard_history_router, prefix="/api")
 
 @app.get("/")

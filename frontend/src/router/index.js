@@ -11,7 +11,8 @@ import Leaderboard from '../pages/Leaderboard.vue'
 import NotFound from '../pages/NotFound.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Default from '../pages/Default.vue'
-
+import AutoTrades from '../pages/AutoTrades.vue'
+import Profile from '../pages/Profile.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -20,14 +21,14 @@ const routes = [
   { path: '/leaderboard', component: Leaderboard },
   { path: '/default', component: Default },
 
-  // meta: { requiresAuth: true } = like @Secured annotation in Spring
-  // marks these routes as protected — only logged in users can access them
-  //{ path: '/users/:id/portfolio', component: Portfolio, meta: { requiresAuth: true } },
-  { path: '/users/:id/portfolio', component: Portfolio },
+  { path: '/portfolio', component: Portfolio, meta: { requiresAuth: true } },
+  { path: '/users/:id/portfolio', component: Portfolio, meta: { requiresAuth: true } },
   { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
+  { path: '/auto-trades', component: AutoTrades, meta: { requiresAuth: true } },
+  { path: '/profile', component: Profile, meta: { requiresAuth: true } },
 
-  { path: '/', redirect: '/market' },  // Default redirect to market
-  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound } //last one should be 404; when nothing else found than 404
+  { path: '/', redirect: '/market' },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]
 
 const router = createRouter({
