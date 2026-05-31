@@ -1,10 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 import api from '@/api/axiosInstance'
-
-const route = useRoute()
-const userId = route.params.id
 
 const portfolio = ref(null)
 const loading = ref(true)
