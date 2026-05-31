@@ -48,6 +48,7 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      #DATABASE_URL: postgresql://postgres:postgres@db:5432/tu_stock_exchange
       REDIS_URL: redis://redis:6379
       YAHOO_FINANCE_API: https://query1.finance.yahoo.com/v8/finance/chart
       SECRET_KEY: ${SECRET_KEY}

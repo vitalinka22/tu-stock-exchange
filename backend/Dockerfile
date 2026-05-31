@@ -17,6 +17,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . .
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
 
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
 # Run the application
 CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
